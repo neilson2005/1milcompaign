@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AirAsia — 1M Meals Campaign Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: #f4f4f2;
+      color: #1a1a1a;
+      font-size: 13px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      background: #fff;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 3px solid #FF0000;
+      margin-bottom: 14px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      background: #FF0000;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 8px 18px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .header h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .header p {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .header-right {
+      text-align: right;
+    }
+
+    .live-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+
+    .live-badge.live {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .live-badge.mock {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .live-badge.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .refresh-info {
+      font-size: 10px;
+      color: #888;
+    }
+
+    /* STATUS BAR */
+    .campaign-bar {
+      background: #fff5f5;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 10px 18px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cbar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 0 16px;
+    }
+
+    .cbar-item:first-child {
+      padding-left: 0;
+    }
+
+    .cbar-label {
+      color: #666;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cbar-value {
+      color: #cc0000;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .cbar-sep {
+      width: 1px;
+      height: 30px;
+      background: #fca5a5;
+    }
+
+    /* PROGRESS */
+    .progress-section {
+      margin-bottom: 14px;
+      background: #fff5f5;
+      border: 1px solid #fca5a5;
+      border-radius: 10px;
+      padding: 12px 18px;
+    }
+
+    .prog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .prog-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .prog-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: #cc0000;
+    }
+
+    .prog-sub {
+      font-size: 10px;
+      color: #888;
+    }
+
+    .progress-bar {
+      height: 14px;
+      background: #fee2e2;
+      border-radius: 7px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #FF0000;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      transition: width 1.2s ease;
+      min-width: 32px;
+    }
+
+    .progress-fill span {
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .progress-markers {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #aaa;
+      margin-top: 3px;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .kpi {
+      background: #f8f8f7;
+      border-radius: 10px;
+      padding: 13px 14px;
+      border-top: 3px solid #FF0000;
+    }
+
+    .kpi.amber {
+      border-top-color: #f59e0b;
+    }
+
+    .kpi.blue {
+      border-top-color: #3b82f6;
+    }
+
+    .kpi.purple {
+      border-top-color: #8b5cf6;
+    }
+
+    .kpi.teal {
+      border-top-color: #0d9488;
+    }
+
+    .kpi.dark {
+      border-top-color: #374151;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    .kpi-delta {
+      font-size: 10px;
+      margin-top: 4px;
+      font-weight: 700;
+    }
+
+    .kpi-delta.up {
+      color: #16a34a;
+    }
+
+    .kpi-delta.down {
+      color: #dc2626;
+    }
+
+    .kpi-delta.neutral {
+      color: #888;
+    }
+
+    .kpi-target {
+      font-size: 9px;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    /* COST STRIP */
+    .cost-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .cost-item {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 11px 14px;
+    }
+
+    .cost-item.red {
+      background: #cc0000;
+    }
+
+    .cost-item.orange {
+      background: #d97706;
+    }
+
+    .cost-item.green {
+      background: #16a34a;
+    }
+
+    .cost-label {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .cost-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .cost-sub {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+
+    /* CHARTS */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .charts-row-3 {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .chart-card {
+      background: #fff;
+      border: 1px solid #e8e8e6;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .chart-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .chart-sub {
+      font-size: 10px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 8px;
+      font-size: 10px;
+      color: #555;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-sq {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .legend-dash {
+      width: 18px;
+      height: 0;
+      display: inline-block;
+      border-top: 2px dashed #f59e0b;
+      flex-shrink: 0;
+    }
+
+    /* TABLE */
+    .table-card {
+      background: #fff;
+      border: 1px solid #e8e8e6;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    table.rt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    table.rt th {
+      text-align: left;
+      padding: 6px 8px;
+      border-bottom: 2px solid #e5e5e5;
+      font-weight: 800;
+      color: #555;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    table.rt td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #f2f2f0;
+      color: #1a1a1a;
+    }
+
+    table.rt tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.rt tr:hover td {
+      background: #fff5f5;
+    }
+
+    .bar-il {
+      display: inline-block;
+      height: 7px;
+      background: #FF0000;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-right: 5px;
+      opacity: 0.6;
+    }
+
+    .up-text {
+      color: #16a34a;
+      font-weight: 700;
+    }
+
+    .down-text {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    .neu-text {
+      color: #888;
+    }
+
+    /* VERDICT */
+    .verdict {
+      background: #fff5f5;
+      border: 1.5px solid #FF0000;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+    }
+
+    .verdict-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: #cc0000;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .verdict-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .verdict-item {
+      background: #fff;
+      border-radius: 8px;
+      padding: 11px 13px;
+      border: 1px solid #fca5a5;
+    }
+
+    .verdict-metric {
+      font-size: 10px;
+      font-weight: 800;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .verdict-status {
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    .verdict-status.pass {
+      color: #16a34a;
+    }
+
+    .verdict-status.fail {
+      color: #dc2626;
+    }
+
+    .verdict-status.pending {
+      color: #d97706;
+    }
+
+    .verdict-bench {
+      font-size: 10px;
+      color: #888;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .verdict-note {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 13px;
+      border: 1px solid #fca5a5;
+      font-size: 11px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    /* DATA STATUS */
+    .data-status {
+      background: #f0f9ff;
+      border: 1px solid #7dd3fc;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #0c4a6e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #7dd3fc;
+      border-top-color: #0284c7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .footnote {
+      font-size: 10px;
+      color: #bbb;
+      text-align: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 12mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        padding: 0;
+      }
+
+      .data-status {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- ═══════════════════════════════════════════
+       ▶  CONFIGURATION — PASTE YOUR SHEET URL HERE
+       ═══════════════════════════════════════════
+       1. In Google Sheets: File → Share → Publish to web
+       2. Select your "dashboard" tab → CSV format → Publish
+       3. Copy the URL and paste it below, replacing the placeholder
+  -->
+    <script>
+      const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWa9Ks1S63zUMFt-xVW_wXMzXXH0inxE0wSwunN9xkmlO3XvFEuu5XJYeeT9Z3NoWQUUAAEbCYY2HD/pub?gid=791453333&single=true&output=csv";
+      // Example: "https://docs.google.com/spreadsheets/d/1aBcDeFgH.../export?format=csv&gid=0"
+
+      // ── Campaign config (change these if needed) ──
+      const MEAL_COST_RM = 6.00;
+      const MEAL_TARGET = 1_000_000;
+      const AVG_PAID_ITEM = 12.00;
+      const CAMPAIGN_START = new Date("2026-05-18T00:00:00+08:00");
+      const CAMPAIGN_END = new Date("2026-05-24T23:59:59+08:00");
+    </script>
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">AirAsia</div>
+        <div>
+          <h1>1 Million Meals Campaign — HOD Dashboard</h1>
+          <p>Campaign: 18–24 May 2026 &nbsp;·&nbsp; Baseline: 11–17 May &nbsp;·&nbsp; Post-campaign: 25–31 May
+            &nbsp;·&nbsp; Auto-refreshes every page load</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="live-badge mock" id="data-badge">⏳ Loading data...</div>
+        <div class="refresh-info">Last refresh: <span id="last-refresh">—</span> &nbsp;|&nbsp; Source: BigQuery → Google
+          Sheets</div>
+      </div>
+    </div>
+
+    <!-- DATA STATUS BAR -->
+    <div class="data-status" id="data-status-bar">
+      <div class="spinner" id="loading-spinner"></div>
+      <span id="data-status-msg">Fetching latest data from Google Sheets...</span>
+    </div>
+
+    <!-- CAMPAIGN STATUS BAR -->
+    <div class="campaign-bar">
+      <div class="cbar-item"><span class="cbar-label">Campaign status</span><span class="cbar-value"
+          id="camp-status">Checking...</span></div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Time remaining</span><span class="cbar-value"
+          id="days-to-go">—</span></div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Total meal budget</span><span class="cbar-value">1,000,000
+          units</span></div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Cost per unit</span><span class="cbar-value">RM 6.00</span></div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Total budget</span><span class="cbar-value">RM 6,000,000</span>
+      </div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Baseline seats / week</span><span class="cbar-value"
+          id="bar-baseline">—</span></div>
+      <div class="cbar-sep"></div>
+      <div class="cbar-item"><span class="cbar-label">Daily redemption target</span><span class="cbar-value">142,857 /
+          day</span></div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-section">
+      <div class="prog-header">
+        <div class="prog-label">Free meal redemption progress &nbsp;·&nbsp; Running total vs 1,000,000 target</div>
+        <div style="text-align:right;">
+          <div class="prog-val" id="prog-display">— / 1,000,000</div>
+          <div class="prog-sub" id="prog-sub-text">Fetching from Google Sheets...</div>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-bar" style="width:2%"><span id="prog-pct">0%</span></div>
+      </div>
+      <div class="progress-markers">
+        <span>0</span><span>250K (25%)</span><span>500K — 50% warn</span><span>750K</span><span>1,000,000 ✓</span>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Free meals redeemed</div>
+        <div class="kpi-value" id="kpi-redeemed">—</div>
+        <div class="kpi-delta neutral" id="kpi-redeemed-d">Loading...</div>
+        <div class="kpi-target">Target: 1,000,000 · Pass: ≥ 60%</div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-label">Seats sold uplift</div>
+        <div class="kpi-value" id="kpi-uplift">—</div>
+        <div class="kpi-delta neutral" id="kpi-uplift-d">Loading...</div>
+        <div class="kpi-target">Pass: &gt; +10% vs baseline week</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-label">Paid attachment rate</div>
+        <div class="kpi-value" id="kpi-attach">—</div>
+        <div class="kpi-delta neutral" id="kpi-attach-d">Paid item on same booking</div>
+        <div class="kpi-target">Benchmark: ≥ 15% · Each 1% = ~RM 180K</div>
+      </div>
+      <div class="kpi purple">
+        <div class="kpi-label">Post-campaign conversion</div>
+        <div class="kpi-value" id="kpi-post">—</div>
+        <div class="kpi-delta neutral" id="kpi-post-d">Loading...</div>
+        <div class="kpi-target">Must exceed pre-campaign baseline</div>
+      </div>
+      <div class="kpi teal">
+        <div class="kpi-label">First-time meal buyers</div>
+        <div class="kpi-value" id="kpi-ftb">—</div>
+        <div class="kpi-delta neutral" id="kpi-ftb-d">Loading...</div>
+        <div class="kpi-target">Net new AirAsia meal customers</div>
+      </div>
+      <div class="kpi dark">
+        <div class="kpi-label">Cost / engaged passenger</div>
+        <div class="kpi-value" id="kpi-cpe">—</div>
+        <div class="kpi-delta neutral" id="kpi-cpe-d">RM 6M ÷ unique redeemers</div>
+        <div class="kpi-target">At 80% redemption → RM 7.50 / pax</div>
+      </div>
+    </div>
+
+    <!-- FINANCIAL STRIP -->
+    <div class="cost-strip">
+      <div class="cost-item red">
+        <div class="cost-label">Campaign cost (fixed)</div>
+        <div class="cost-value">RM 6,000,000</div>
+        <div class="cost-sub">1,000,000 units × RM 6.00</div>
+      </div>
+      <div class="cost-item orange">
+        <div class="cost-label">In-flight revenue recovered</div>
+        <div class="cost-value" id="revenue-recovered">RM —</div>
+        <div class="cost-sub">Redeemers × attach rate × avg RM 12</div>
+      </div>
+      <div class="cost-item green">
+        <div class="cost-label">Net campaign cost</div>
+        <div class="cost-value" id="net-cost">RM 6,000,000</div>
+        <div class="cost-sub">After in-flight recovery</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-label">Breakeven attach rate</div>
+        <div class="cost-value">50%</div>
+        <div class="cost-sub">For full RM 6M cost recovery</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Daily free meal redemptions vs target</div>
+        <div class="chart-sub">Units redeemed per day · 18–24 May 2026 · Auto-updates from Google Sheets</div>
+        <div class="legend">
+          <span><span class="legend-sq" style="background:#FF0000;"></span>Redeemed</span>
+          <span><span class="legend-dash"></span>Daily target (142,857)</span>
+        </div>
+        <div style="position:relative;width:100%;height:200px;">
+          <canvas id="dailyChart" role="img"
+            aria-label="Bar chart of daily free meal redemptions vs daily target line">Daily redemptions 18–24
+            May.</canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Seats sold — 3-week comparison</div>
+        <div class="chart-sub">Total weekly seats · pre / during / post campaign</div>
+        <div class="legend">
+          <span><span class="legend-sq" style="background:#b0c4b8;"></span>Pre (11–17 May)</span>
+          <span><span class="legend-sq" style="background:#FF0000;"></span>During (18–24 May)</span>
+          <span><span class="legend-sq" style="background:#60a5fa;"></span>Post (25–31 May)</span>
+        </div>
+        <div style="position:relative;width:100%;height:200px;">
+          <canvas id="seatsChart" role="img"
+            aria-label="Grouped bar chart comparing seats sold pre, during and post campaign">Seats sold comparison
+            across three periods.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="charts-row-3">
+      <div class="table-card">
+        <div class="chart-title">Paid attachment rate by route</div>
+        <div class="chart-sub">% of free meal redeemers who also bought a paid item on the same booking</div>
+        <table class="rt">
+          <thead>
+            <tr>
+              <th>Route</th>
+              <th>Free redeemed</th>
+              <th>Paid attach</th>
+              <th>Attach rate</th>
+              <th>Revenue recovered</th>
+              <th>vs baseline</th>
+            </tr>
+          </thead>
+          <tbody id="route-tbody">
+            <tr>
+              <td colspan="6" style="text-align:center;color:#aaa;padding:16px;">Loading route data from Google
+                Sheets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top 5 redeemed meal SKUs</div>
+        <div class="chart-sub">By free redemption count · live from BigQuery</div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="skuChart" role="img" aria-label="Horizontal bar chart of top 5 meal SKUs by redemption volume">Top
+            5 meal SKUs redeemed.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERDICT -->
+    <div class="verdict">
+      <div class="verdict-title">HOD Verdict — Campaign Effectiveness Scorecard</div>
+      <div class="verdict-grid">
+        <div class="verdict-item">
+          <div class="verdict-metric">Awareness reach</div>
+          <div class="verdict-status pending" id="v-awareness">⏳ Awaiting data</div>
+          <div class="verdict-bench">Pass: ≥ 600,000 units redeemed (60%)<br>Strong: ≥ 800,000 (80%)</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-metric">Ticket uplift</div>
+          <div class="verdict-status pending" id="v-uplift">⏳ Awaiting data</div>
+          <div class="verdict-bench">Pass: seats &gt; +10% above baseline week<br>Strong: &gt; +20%</div>
+        </div>
+        <div class="verdict-item">
+          <div class="verdict-metric">Awareness → conversion</div>
+          <div class="verdict-status pending" id="v-conversion">⏳ Available from 25 May</div>
+          <div class="verdict-bench">Pass: post-campaign paid meal rate exceeds pre-campaign baseline</div>
+        </div>
+      </div>
+      <div class="verdict-note" id="verdict-summary">
+        <strong style="color:#cc0000;">Overall verdict:</strong> Dashboard is reading live from Google Sheets. Numbers
+        update automatically whenever BigQuery pushes new data. The three verdict indicators above turn green (pass) or
+        red (fail) based on live thresholds.
+      </div>
+    </div>
+
+    <div class="footnote">
+      AirAsia Inflight F&amp;B &nbsp;·&nbsp; Data: BigQuery → Google Sheets (auto-refresh) → GitHub Pages
+      &nbsp;·&nbsp; Scheduled at 11:00 &amp; 15:00 MYT &nbsp;·&nbsp; For HOD use only &nbsp;·&nbsp; Printable A4
+      landscape
+    </div>
+
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // DATA FETCHING — reads live CSV from Google Sheets
+    // ═══════════════════════════════════════════════════════════════
+
+    // Expected Google Sheet "dashboard" tab columns (row 2 = data):
+    // A: last_refresh   B: total_redeemed    C: seats_baseline
+    // D: seats_during   E: seats_post        F: attach_rate (decimal, e.g. 0.18)
+    // G: post_conv_rate H: first_time_buyers
+    // I–O: daily_d1 through daily_d7 (redemptions each day)
+    // P: sku1_name  Q: sku1_val  R: sku2_name  S: sku2_val
+    // T: sku3_name  U: sku3_val  V: sku4_name  W: sku4_val
+    // X: sku5_name  Y: sku5_val
+    // Z–AE: route1_name,route1_free,route1_paid,route1_pct,route1_rev,route1_vs ... (repeat ×5)
+
+    let charts = {};
+
+    async function loadData() {
+      setStatus("loading", "Fetching latest data from Google Sheets...");
+
+      // Check if URL has been configured
+      if (!SHEET_CSV_URL || SHEET_CSV_URL.includes("PASTE_YOUR")) {
+        setStatus("mock", "No Google Sheet connected — showing mock data for dashboard preview");
+        renderAll(getMockData());
+        return;
+      }
+
+      try {
+        // Direct fetch — works on GitHub Pages (https://)
+        // Uses CORS proxy automatically if opened as a local file
+        const isLocal = window.location.protocol === "file:";
+        const baseUrl = SHEET_CSV_URL + (SHEET_CSV_URL.includes("?") ? "&" : "?") + "cachebust=" + Date.now();
+        const url = isLocal ? "https://corsproxy.io/?" + encodeURIComponent(SHEET_CSV_URL) : baseUrl;
+
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const text = await resp.text();
+        console.log("Raw CSV preview:", text.substring(0, 300));
+        const data = parseCSV(text);
+        if (!data) throw new Error("Sheet has no data row — add data to row 2");
+        setStatus("live", "Live data — " + new Date().toLocaleTimeString("en-MY", { timeZone: "Asia/Kuala_Lumpur" }) + " MYT");
+        renderAll(data);
+      } catch (err) {
+        console.error("Sheet fetch error:", err);
+        const isLocal = window.location.protocol === "file:";
+        const hint = isLocal
+          ? "Running locally. Upload to GitHub Pages for best results."
+          : "Check your Sheet is published: File → Share → Publish to web → CSV.";
+        setStatus("error", hint);
+        renderAll(getMockData());
+      }
+    }
+
+    function parseCSV(text) {
+      const rows = text.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g, "").trim()));
+      if (rows.length < 2) return null;
+      const h = rows[0];  // headers
+      const d = rows[1];  // data row
+
+      // Debug: log headers so we can see what the Sheet is sending
+      console.log("Sheet headers found:", h);
+      console.log("Sheet data row:", d);
+
+      const col = (name) => {
+        const i = h.indexOf(name);
+        return i >= 0 ? d[i] : "";
+      };
+      const n = (name) => parseFloat(col(name)) || 0;
+
+      // Column names mapped to YOUR actual Google Sheet headers (from screenshot)
+      // Sheet col A: last_updated  |  B: total_redeemed  |  C: seats_baseline
+      // D: seats_campaign  |  E: seats_post  |  F: attach_rate
+      // G: reserved_1 (post conv)  |  H: reserved_2 (first time buyers)
+      // I-O: day_1 through day_7
+      // P onwards: top_sku_1, top_sku_1_val, top_sku_2, top_sku_2_val ...
+      return {
+        lastRefresh:      col("last_updated") || col("last_refresh") || "—",
+        totalRedeemed:    n("total_redeemed"),
+        seatsBaseline:    n("seats_baseline") || 128800,
+        seatsDuring:      n("seats_campaign") || n("seats_during"),
+        seatsPost:        n("seats_post"),
+        attachRate:       n("attach_rate"),
+        postConvRate:     n("reserved_1")     || n("post_conv_rate"),
+        firstTimeBuyers:  n("reserved_2")     || n("first_time_buyers"),
+        daily: [
+          n("day_1") || n("daily_d1"),
+          n("day_2") || n("daily_d2"),
+          n("day_3") || n("daily_d3"),
+          n("day_4") || n("daily_d4"),
+          n("day_5") || n("daily_d5"),
+          n("day_6") || n("daily_d6"),
+          n("day_7") || n("daily_d7"),
+        ],
+        skus: [
+          { name: col("top_sku_1")    || col("sku1_name") || "SKU 1", val: n("top_sku_1_val") || n("sku1_val") },
+          { name: col("top_sku_2")    || col("sku2_name") || "SKU 2", val: n("top_sku_2_val") || n("sku2_val") },
+          { name: col("top_sku_3")    || col("sku3_name") || "SKU 3", val: n("top_sku_3_val") || n("sku3_val") },
+          { name: col("top_sku_4")    || col("sku4_name") || "SKU 4", val: n("top_sku_4_val") || n("sku4_val") },
+          { name: col("top_sku_5")    || col("sku5_name") || "SKU 5", val: n("top_sku_5_val") || n("sku5_val") },
+        ],
+        routes: buildRoutes(h, d)
+      };
+    }
+
+    function buildRoutes(h, d) {
+      const routes = [];
+      // Support both naming conventions: route1_name OR top_route_1
+      for (let i = 1; i <= 6; i++) {
+        const nameIdx = h.indexOf("route" + i + "_name") >= 0
+          ? h.indexOf("route" + i + "_name")
+          : h.indexOf("top_route_" + i);
+        const name = nameIdx >= 0 ? d[nameIdx] : "";
+        if (!name || name.trim() === "") continue;
+
+        const getCol = (suffix, alt) => {
+          const idx = h.indexOf("route" + i + "_" + suffix);
+          if (idx >= 0) return d[idx];
+          const idx2 = h.indexOf(alt);
+          return idx2 >= 0 ? d[idx2] : "";
+        };
+
+        routes.push({
+          name: name.trim(),
+          free:  parseFloat(getCol("free",  "route" + i + "_free_redeemed")) || 0,
+          paid:  parseFloat(getCol("paid",  "route" + i + "_paid_count"))    || 0,
+          pct:   parseFloat(getCol("pct",   "route" + i + "_attach_pct"))    || 0,
+          rev:   parseFloat(getCol("rev",   "route" + i + "_revenue"))       || 0,
+          delta: getCol("vs", "route" + i + "_delta") || "—"
+        });
+      }
+      return routes;
+    }
+
+    function getMockData() {
+      return {
+        lastRefresh: "MOCK DATA — connect your Google Sheet",
+        totalRedeemed: 0, seatsBaseline: 128800,
+        seatsDuring: 0, seatsPost: 0,
+        attachRate: 0, postConvRate: 0, firstTimeBuyers: 0,
+        daily: [0, 0, 0, 0, 0, 0, 0],
+        skus: [
+          { name: "Nasi Lemak Set", val: 0 }, { name: "Chicken Rice", val: 0 },
+          { name: "Mee Goreng", val: 0 }, { name: "Roti Canai Set", val: 0 }, { name: "Laksa", val: 0 }
+        ],
+        routes: [
+          { name: "KUL → SIN", free: 0, paid: 0, pct: 0, rev: 0, delta: "—" },
+          { name: "KUL → BKI", free: 0, paid: 0, pct: 0, rev: 0, delta: "—" },
+          { name: "KUL → KCH", free: 0, paid: 0, pct: 0, rev: 0, delta: "—" },
+        ]
+      };
+    }
+
+    function setStatus(type, msg) {
+      const bar = document.getElementById("data-status-bar");
+      const badge = document.getElementById("data-badge");
+      const msgEl = document.getElementById("data-status-msg");
+      const spinner = document.getElementById("loading-spinner");
+
+      msgEl.textContent = msg;
+      spinner.style.display = type === "loading" ? "block" : "none";
+
+      if (type === "live") {
+        bar.style.background = "#f0fdf4";
+        bar.style.borderColor = "#86efac";
+        bar.style.color = "#14532d";
+        badge.className = "live-badge live";
+        badge.textContent = "✓ Live data";
+        document.getElementById("last-refresh").textContent = new Date().toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" });
+      } else if (type === "mock") {
+        bar.style.background = "#fffbeb";
+        bar.style.borderColor = "#fcd34d";
+        bar.style.color = "#78350f";
+        badge.className = "live-badge mock";
+        badge.textContent = "⚠ Mock data";
+      } else if (type === "error") {
+        bar.style.background = "#fef2f2";
+        bar.style.borderColor = "#fca5a5";
+        bar.style.color = "#7f1d1d";
+        badge.className = "live-badge error";
+        badge.textContent = "✗ Sheet error";
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function fmt(n) { return Math.round(n).toLocaleString("en-MY"); }
+    function fmtPct(n) { return (n * 100).toFixed(1) + "%"; }
+    function fmtRM(n) { return "RM " + fmt(Math.round(n)); }
+    function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+
+    function renderAll(d) {
+      const redemptionRate = d.totalRedeemed / MEAL_TARGET;
+      const upliftPct = d.seatsBaseline > 0 && d.seatsDuring > 0
+        ? (d.seatsDuring - d.seatsBaseline) / d.seatsBaseline
+        : null;
+      const revenueRecovered = d.totalRedeemed * d.attachRate * AVG_PAID_ITEM;
+      const netCost = (MEAL_TARGET * MEAL_COST_RM) - revenueRecovered;
+      const cpe = d.totalRedeemed > 0
+        ? (MEAL_TARGET * MEAL_COST_RM) / d.totalRedeemed
+        : null;
+      const pct = Math.min(Math.round(redemptionRate * 100), 100);
+
+      // Status bar
+      set("bar-baseline", fmt(d.seatsBaseline));
+
+      // Progress bar
+      document.getElementById("prog-bar").style.width = Math.max(pct, 2) + "%";
+      set("prog-pct", pct + "%");
+      set("prog-display", (d.totalRedeemed > 0 ? fmt(d.totalRedeemed) : "—") + " / 1,000,000 (" + pct + "%)");
+      set("prog-sub-text", d.totalRedeemed > 0
+        ? "Updated " + d.lastRefresh
+        : "Campaign not yet started — data will populate from 18 May 2026");
+
+      // KPI 1
+      set("kpi-redeemed", d.totalRedeemed > 0 ? fmt(d.totalRedeemed) : "—");
+      setDelta("kpi-redeemed-d", d.totalRedeemed > 0,
+        pct + "% of 1,000,000 target",
+        pct >= 60 ? "up" : pct > 0 ? "down" : "neutral",
+        "Awaiting campaign start 18 May");
+
+      // KPI 2
+      set("kpi-uplift", upliftPct !== null ? (upliftPct >= 0 ? "+" : "") + (upliftPct * 100).toFixed(1) + "%" : "—");
+      setDelta("kpi-uplift-d", d.seatsDuring > 0,
+        d.seatsDuring > 0 ? fmt(d.seatsDuring) + " vs baseline " + fmt(d.seatsBaseline) : "Baseline: " + fmt(d.seatsBaseline) + " / week",
+        upliftPct !== null && upliftPct >= 0.10 ? "up" : upliftPct !== null && upliftPct >= 0 ? "neutral" : "down",
+        "Baseline locked · Campaign seats pending");
+
+      // KPI 3
+      set("kpi-attach", d.attachRate > 0 ? fmtPct(d.attachRate) : "—");
+      setDelta("kpi-attach-d", d.attachRate > 0,
+        d.attachRate > 0 ? fmtRM(revenueRecovered) + " in-flight recovered" : "Paid item on same booking",
+        d.attachRate >= 0.15 ? "up" : d.attachRate > 0 ? "down" : "neutral",
+        "Available once campaign data flows");
+
+      // KPI 4
+      set("kpi-post", d.postConvRate > 0 ? fmtPct(d.postConvRate) : "—");
+      setDelta("kpi-post-d", d.postConvRate > 0,
+        "Post-campaign redeemers who bought paid meal",
+        "neutral", "Available from 25 May 2026");
+
+      // KPI 5
+      set("kpi-ftb", d.firstTimeBuyers > 0 ? fmt(d.firstTimeBuyers) : "—");
+      setDelta("kpi-ftb-d", d.firstTimeBuyers > 0,
+        "Net new AirAsia meal customers created",
+        "up", "Pending campaign data");
+
+      // KPI 6
+      set("kpi-cpe", cpe !== null ? fmtRM(cpe) : "—");
+      setDelta("kpi-cpe-d", cpe !== null,
+        cpe !== null ? "per engaged passenger" : "RM 6M ÷ unique redeemers",
+        cpe !== null && cpe <= 8 ? "up" : "down",
+        "At 80% redemption → RM 7.50 / pax");
+
+      // Financial strip
+      set("revenue-recovered", fmtRM(revenueRecovered));
+      set("net-cost", fmtRM(netCost));
+
+      // Route table
+      renderRouteTable(d.routes);
+
+      // Verdict
+      renderVerdicts(redemptionRate, upliftPct, d.postConvRate);
+
+      // Charts
+      renderCharts(d);
+    }
+
+    function setDelta(id, hasData, liveText, cls, pendingText) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!hasData && pendingText) {
+        el.textContent = pendingText; el.className = "kpi-delta neutral";
+      } else {
+        el.textContent = liveText; el.className = "kpi-delta " + (cls || "neutral");
+      }
+    }
+
+    function renderRouteTable(routes) {
+      const tbody = document.getElementById("route-tbody");
+      if (!routes || routes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:16px;">No route data yet — awaiting campaign</td></tr>';
+        return;
+      }
+      const maxFree = Math.max(...routes.map(r => r.free), 1);
+      tbody.innerHTML = routes.map(r => {
+        const barW = Math.round((r.free / maxFree) * 50);
+        const dCls = r.delta.startsWith("↑") ? "up-text" : r.delta.startsWith("↓") ? "down-text" : "neu-text";
+        return `<tr>
+      <td>${r.name}</td>
+      <td>${r.free > 0 ? fmt(r.free) : "—"}</td>
+      <td>${r.paid > 0 ? fmt(r.paid) : "—"}</td>
+      <td><span class="bar-il" style="width:${barW}px;"></span>${r.pct > 0 ? r.pct.toFixed(1) + "%" : "—"}</td>
+      <td>${r.rev > 0 ? fmtRM(r.rev) : "—"}</td>
+      <td class="${dCls}">${r.delta}</td>
+    </tr>`;
+      }).join("");
+    }
+
+    function renderVerdicts(rRate, uplift, postConv) {
+      const va = document.getElementById("v-awareness");
+      const vu = document.getElementById("v-uplift");
+      const vc = document.getElementById("v-conversion");
+      if (rRate > 0) {
+        const p = Math.round(rRate * 100);
+        if (rRate >= 0.80) { va.textContent = "✅ Strong pass (" + p + "%)"; va.className = "verdict-status pass"; }
+        else if (rRate >= 0.60) { va.textContent = "✅ Pass (" + p + "%)"; va.className = "verdict-status pass"; }
+        else { va.textContent = "❌ Below target (" + p + "%)"; va.className = "verdict-status fail"; }
+      }
+      if (uplift !== null && uplift !== undefined) {
+        const p = (uplift * 100).toFixed(1);
+        if (uplift >= 0.20) { vu.textContent = "✅ Strong pass (+" + p + "%)"; vu.className = "verdict-status pass"; }
+        else if (uplift >= 0.10) { vu.textContent = "✅ Pass (+" + p + "%)"; vu.className = "verdict-status pass"; }
+        else if (uplift >= 0) { vu.textContent = "⚠ Marginal (+" + p + "%)"; vu.className = "verdict-status pending"; }
+        else { vu.textContent = "❌ Seats declined (" + p + "%)"; vu.className = "verdict-status fail"; }
+      }
+      if (postConv > 0) {
+        vc.textContent = "✅ Conversion signal: " + fmtPct(postConv);
+        vc.className = "verdict-status pass";
+      }
+    }
+
+    function renderCharts(d) {
+      // Destroy existing charts before re-creating
+      Object.values(charts).forEach(c => c.destroy());
+      charts = {};
+
+      charts.daily = new Chart(document.getElementById("dailyChart"), {
+        type: "bar",
+        data: {
+          labels: ["18 May", "19 May", "20 May", "21 May", "22 May", "23 May", "24 May"],
+          datasets: [
+            { label: "Redeemed", data: d.daily, backgroundColor: "#FF0000", borderRadius: 4 },
+            {
+              label: "Target", data: Array(7).fill(142857), type: "line",
+              borderColor: "#f59e0b", borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: "Manrope", size: 10 }, autoSkip: false } },
+            y: {
+              beginAtZero: true, max: 200000,
+              ticks: { callback: v => (v / 1000) + "K", font: { family: "Manrope", size: 10 } },
+              grid: { color: "#f2f2f0" }
+            }
+          }
+        }
+      });
+
+      charts.seats = new Chart(document.getElementById("seatsChart"), {
+        type: "bar",
+        data: {
+          labels: ["Domestic", "International", "Total"],
+          datasets: [
+            { label: "Pre (11–17 May)", data: [Math.round(d.seatsBaseline * 0.687), Math.round(d.seatsBaseline * 0.313), d.seatsBaseline], backgroundColor: "#b0c4b8", borderRadius: 3 },
+            { label: "During (18–24 May)", data: [Math.round(d.seatsDuring * 0.687), Math.round(d.seatsDuring * 0.313), d.seatsDuring], backgroundColor: "#FF0000", borderRadius: 3 },
+            { label: "Post (25–31 May)", data: [Math.round(d.seatsPost * 0.687), Math.round(d.seatsPost * 0.313), d.seatsPost], backgroundColor: "#60a5fa", borderRadius: 3 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: "Manrope", size: 10 }, autoSkip: false } },
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => (v / 1000).toFixed(0) + "K", font: { family: "Manrope", size: 10 } },
+              grid: { color: "#f2f2f0" }
+            }
+          }
+        }
+      });
+
+      charts.sku = new Chart(document.getElementById("skuChart"), {
+        type: "bar",
+        data: {
+          labels: d.skus.map(s => s.name),
+          datasets: [{
+            label: "Units redeemed",
+            data: d.skus.map(s => s.val),
+            backgroundColor: ["#FF0000", "#cc0000", "#e53e3e", "#fc8181", "#feb2b2"],
+            borderRadius: 3
+          }]
+        },
+        options: {
+          indexAxis: "y", responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { beginAtZero: true, ticks: { callback: v => v > 0 ? (v / 1000).toFixed(0) + "K" : "0", font: { family: "Manrope", size: 10 } }, grid: { color: "#f2f2f0" } },
+            y: { grid: { display: false }, ticks: { font: { family: "Manrope", size: 10 } } }
+          }
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // COUNTDOWN
+    // ═══════════════════════════════════════════════════════════════
+    (function updateCountdown() {
+      const now = new Date();
+      const statusEl = document.getElementById("camp-status");
+      const daysEl = document.getElementById("days-to-go");
+      if (now >= CAMPAIGN_START && now <= CAMPAIGN_END) {
+        statusEl.textContent = "🟢 LIVE NOW";
+        const dayNum = Math.floor((now - CAMPAIGN_START) / 86400000) + 1;
+        const remaining = Math.ceil((CAMPAIGN_END - now) / 86400000);
+        daysEl.textContent = "Day " + dayNum + " of 7 · " + remaining + " days left";
+      } else if (now > CAMPAIGN_END) {
+        statusEl.textContent = "🏁 Campaign ended";
+        daysEl.textContent = "Post-campaign analysis";
+      } else {
+        const diff = Math.ceil((CAMPAIGN_START - now) / 86400000);
+        statusEl.textContent = "⏳ Not started";
+        daysEl.textContent = "Starts in " + diff + " day" + (diff !== 1 ? "s" : "");
+      }
+    })();
+
+    // ═══════════════════════════════════════════════════════════════
+    // BOOT
+    // ═══════════════════════════════════════════════════════════════
+    loadData();
+  </script>
+</body>
+
+</html>
